@@ -8,7 +8,7 @@ const store = useSchemeStore()
 const nav = [
   { name: 'overview', label: '方案总览' },
   { name: 'map', label: '地图与阶段' },
-  { name: 'review', label: '多单位会签' },
+  { name: 'review', label: '会签与通告' },
 ]
 </script>
 
@@ -19,12 +19,16 @@ const nav = [
       <a-menu :selected-keys="[route.name]" class="menu" @menu-item-click="(key: string) => router.push({ name: key })">
         <a-menu-item v-for="item in nav" :key="item.name">{{ item.label }}</a-menu-item>
       </a-menu>
-      <div class="project-card"><span></span><div><b>{{ store.scheme.project }}</b><small>草案 v{{ store.scheme.version }} · 4 家单位会签</small></div></div>
+      <div class="project-card"><span :class="{ off: store.offline }"></span><div><b>{{ store.current.project }}</b><small>{{ store.offline ? '离线编辑 · 恢复时按修订号合并' : `当前修订 R${store.revisionNo} · 4 家单位会签` }}</small></div></div>
     </a-layout-sider>
     <a-layout>
       <a-layout-header class="topbar">
-        <div><b>{{ store.scheme.id }}</b><span>{{ store.scheme.area }} · 2026 年第四季度施工计划</span></div>
-        <div class="top-actions"><a-tag color="green">协同在线 11</a-tag><a-button :disabled="!store.dirty" @click="store.undo">撤销修改</a-button><a-button type="primary">发起阶段审批</a-button></div>
+        <div><b>{{ store.current.id }}</b><span>{{ store.current.area }} · 2026 年第四季度施工计划 · 修订链 R1–R{{ store.revisionNo }}</span></div>
+        <div class="top-actions">
+          <a-tag :color="store.offline ? 'orange' : 'green'">{{ store.offline ? `离线中 · 本地 R${store.revisionNo}` : '协同在线 11' }}</a-tag>
+          <a-button @click="store.viewRevision(null); router.push('/review')">修订链 / 历史版本</a-button>
+          <a-button type="primary" @click="router.push('/review')">会签与通告</a-button>
+        </div>
       </a-layout-header>
       <a-layout-content class="main"><router-view /></a-layout-content>
     </a-layout>
